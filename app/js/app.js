@@ -146,6 +146,8 @@
   const C = { leaf: '#2d6a4f', shoot: '#8bbec1', root: '#b98a2e', berry: '#c67850', cluster: '#c8d979', wood: '#6b5b95' };
 
   function renderCharts() {
+    // застосувати висоти з data-h (інакше canvas за замовчуванням 150px)
+    document.querySelectorAll('canvas.chart').forEach(c => { c.style.height = (c.dataset.h || 150) + 'px'; });
     const d = run.daily;
     const mk = (key) => seriesOf(run, key);
     const baseSeries = (key, name, color, dashed) => baseRun
@@ -266,8 +268,8 @@
       a.classList.add('active');
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       $('tab-' + a.dataset.tab).classList.add('active');
+      renderCharts();                       // канваси прихованих вкладок мають нульову ширину — перемальовуємо
       if (a.dataset.tab === 'sens') renderSensitivity();
-      if (a.dataset.tab === 'flows' || a.dataset.tab === 'season') renderCharts();
     });
   });
 
