@@ -1,0 +1,126 @@
+# Реєстр параметрів ядра Tier 1
+# Кожен параметр: значення, одиниця, діапазон, статус джерела.
+# status: ASSUMPTION = прийнято за припущенням з обґрунтуванням (підлягає калібруванню, етап E6);
+#         TZ §8 = орієнтовний діапазон із технічного завдання (розділ 8);
+#         NOT_VERIFIED = вимагає верифікації за літературою (Agent 1, етап E1).
+
+core:
+  eps0:
+    value: 0.85
+    unit: "g C / mol PPFD intercepted"
+    range: [0.6, 1.2]
+    status: ASSUMPTION
+    rationale: "Агрегат радіаційної ефективності (RUE ~ 1.1–1.5 г DM/MJ PAR в оптимумі). Калібрувальний."
+  rm_base:
+    value: 0.006
+    unit: "g C · g⁻¹ DM · day⁻¹ (при 20 °C)"
+    range: [0.004, 0.012]
+    status: ASSUMPTION
+    rationale: "Дихання підтримки ~ 40–50 % GPP за сезон. Q10 = 2.0 (стартове, верифікувати)."
+  growth_cost:
+    value: 1.4
+    unit: "g C assimilate / g C in product"
+    range: [1.2, 1.6]
+    status: ASSUMPTION
+    rationale: "Penning de Vries-типу: середня вартість синтезу структурних вуглеводнів, білків, органічних кислот."
+  sla:
+    value: 0.02
+    unit: "m² leaf / g DM"
+    range: [0.015, 0.026]
+    status: ASSUMPTION
+    rationale: "SLA ≈ 15–25 м²/кг для Vitis."
+  k_ext:
+    value: 0.7
+    unit: "-"
+    range: [0.5, 1.0]
+    status: ASSUMPTION
+    rationale: "Коефіцієнт екстинкції світла в кроні виноградника."
+  q10_maint:
+    value: 2.0
+    unit: "-"
+    range: [1.8, 2.3]
+    status: ASSUMPTION
+  q10_malate:
+    value: 2.1
+    unit: "-"
+    status: ASSUMPTION
+    rationale: "Температурна залежність дихання малату після véraison."
+
+nitrogen:
+  vmax_n:
+    value: 0.15
+    unit: "g N / vine / day (20 °C)"
+    range: [0.10, 0.30]
+    status: ASSUMPTION
+    rationale: "Сезонне поглинання ~ 25–35 г N/куш (≈ 30–60 кг/га при 4000 кущів/га в межах площ живлення)."
+  km_n:
+    value: 0.05
+    unit: "g N / vine"
+    status: ASSUMPTION
+  n_conc:
+    leaf: {value: 0.024, unit: "g N / g DM", status: ASSUMPTION, note: "оптимум; діапазон 0.02–0.03"}
+    shoot: {value: 0.010, unit: "g N / g DM", status: ASSUMPTION}
+    root: {value: 0.013, unit: "g N / g DM", status: ASSUMPTION}
+    wood: {value: 0.004, unit: "g N / g DM", status: ASSUMPTION}
+    berry: {value: 0.006, unit: "g N / g DM", status: ASSUMPTION}
+  soil_fertility:
+    poor:   {initialN: 12, mineralization: 0.15, unit: "kg N/ha; kg N/ha/day @15 °C", status: ASSUMPTION}
+    medium: {initialN: 30, mineralization: 0.35, unit: "kg N/ha; kg N/ha/day @15 °C", status: ASSUMPTION}
+    rich:   {initialN: 55, mineralization: 0.65, unit: "kg N/ha; kg N/ha/day @15 °C", status: ASSUMPTION}
+  leach_rate:
+    value: 0.018
+    unit: "day⁻¹ (частка мінерального N при вологості ≥ 0.7)"
+    status: ASSUMPTION
+
+berry:
+  malate_l:
+    value: 12
+    unit: "g / L must при накопиченні до véraison"
+    range: [10, 16]
+    status: TZ §8
+  tartrate_l:
+    value: 10
+    unit: "g / L must"
+    status: TZ §8
+  k_malate_resp:
+    value: 0.07
+    unit: "day⁻¹ при 25 °C"
+    status: ASSUMPTION
+  sugar_rate:
+    value: 6.8
+    unit: "g sugar / kg berries / day (при L:F оптимумі, 25 °C, повних факторах)"
+    status: ASSUMPTION
+    note: "калібрувальний; L:F-фактор 0.35–1.25"
+  berry_k_l:
+    value: 1.8
+    unit: "g K / L must (при kSupply = 1)"
+    range: [1.5, 2.5]
+    status: ASSUMPTION
+
+terpenes:
+  terp_synth_base:
+    muscat_blanc: {value: 45, unit: "µg/kg berries/day (пік, оптимальні фактори)", status: ASSUMPTION}
+    muscat_alexandria: {value: 30, status: ASSUMPTION}
+    muscat_ottonel: {value: 23, status: ASSUMPTION}
+    muscat_hamburg: {value: 27, status: ASSUMPTION}
+    rationale: "Калібрувальний проксі активності MEP-шляху (VvDXS1). Ціль за §8: сумарні вільні монотерпеноли мускату білого ~ 400–1600 мкг/кг. НЕ ВЕРИФІКОВАНО."
+  dxs_activity:
+    muscat_blanc: 1.00
+    muscat_alexandria: 0.72
+    muscat_ottonel: 0.55
+    muscat_hamburg: 0.62
+    status: ASSUMPTION
+    note: "Проксі поліморфізму VvDXS1; верифікувати за літературою (E1)."
+  gly_rate: {value: 0.045, unit: "day⁻¹ × f(T enzyme)", status: ASSUMPTION}
+  loss_base: {value: 0.008, unit: "day⁻¹ × f(T enzyme) + hot extra", status: ASSUMPTION}
+  muscat_index_scale:
+    value: 7
+    unit: "µg/kg вільних монотерпенолів за 1 пункт індексу (0–100)"
+    status: ASSUMPTION
+
+variety_targets:   # орієнтири правдоподібності (розділ 8 ТЗ)
+  brix_harvest: {range: [18, 24], unit: "°Bx", status: TZ §8}
+  ta_harvest: {range: [4, 9], unit: "g/L tartaric eq.", status: TZ §8}
+  ph_harvest: {range: [3.0, 3.6], status: TZ §8}
+  berry_mass_muscat_blanc: {range: [1, 2], unit: "g", status: TZ §8}
+  lai_full: {range: [1.5, 3.5], status: TZ §8}

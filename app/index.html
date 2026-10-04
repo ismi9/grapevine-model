@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VineSeason — модель сезону виноградного куща (мускатні сорти)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">VINE<span>·</span>SEASON <small>модель C · N · ароматики мускату</small></div>
+  <nav>
+    <a href="#tab-season" data-tab="season" class="active">Сезон</a>
+    <a href="#tab-berry" data-tab="berry">Ягода</a>
+    <a href="#tab-flows" data-tab="flows">Потоки</a>
+    <a href="#tab-sens" data-tab="sens">Чутливість</a>
+    <a href="#tab-params" data-tab="params">Параметри</a>
+  </nav>
+  <div class="hdr-actions">
+    <button id="btn-base" title="Зберегти поточний сценарій як базовий для порівняння">★ База A/B</button>
+    <button id="btn-csv" title="Експорт добових даних у CSV">CSV</button>
+    <button id="btn-save" title="Зберегти сценарій у файл">JSON</button>
+    <label class="file-btn" title="Завантажити сценарій">Відкрити<input type="file" id="file-load" accept=".json"></label>
+  </div>
+</header>
+
+<main>
+  <aside class="controls" id="controls">
+    <h2>Параметри сезону</h2>
+
+    <div class="ctl-group">
+      <label>Сорт
+        <select id="ctl-variety"></select>
+      </label>
+    </div>
+
+    <div class="ctl-group">
+      <label>Сценарій погоди
+        <select id="ctl-tempScenario"></select>
+      </label>
+      <div class="slider"><label>Зсув температури <output id="out-dT">0 °C</output></label>
+        <input type="range" id="ctl-dT" min="-3" max="3" step="0.5" value="0"></div>
+      <div class="slider"><label>Світло (PAR) <output id="out-par">1.00×</output></label>
+        <input type="range" id="ctl-parFactor" min="0.6" max="1.4" step="0.05" value="1"></div>
+    </div>
+
+    <div class="ctl-group">
+      <span class="grp-title">Ґрунт і добрива</span>
+      <label>Родючість ґрунту
+        <select id="ctl-soilFertility"></select>
+      </label>
+      <div class="slider"><label>Азот N, кг/га за сезон <output id="out-n">60</output></label>
+        <input type="range" id="ctl-nFertKgHa" min="0" max="150" step="5" value="60"></div>
+      <div class="slider"><label>Фосфор P (від оптимуму) <output id="out-p">1.00</output></label>
+        <input type="range" id="ctl-pSupply" min="0.2" max="1.5" step="0.05" value="1"></div>
+      <div class="slider"><label>Калій K <output id="out-k">1.00</output></label>
+        <input type="range" id="ctl-kSupply" min="0.3" max="1.5" step="0.05" value="1"></div>
+      <div class="slider"><label>Магній Mg <output id="out-mg">1.00</output></label>
+        <input type="range" id="ctl-mgSupply" min="0.15" max="1.0" step="0.05" value="1"></div>
+      <div class="slider"><label>Бор B <output id="out-b">1.00</output></label>
+        <input type="range" id="ctl-bSupply" min="0.2" max="1.5" step="0.05" value="1"></div>
+      <div class="slider"><label>Цинк Zn <output id="out-zn">1.00</output></label>
+        <input type="range" id="ctl-znSupply" min="0.2" max="1.5" step="0.05" value="1"></div>
+    </div>
+
+    <div class="ctl-group">
+      <span class="grp-title">Вода і вегетація</span>
+      <div class="slider"><label>Забезпеченість водою <output id="out-water">75%</output></label>
+        <input type="range" id="ctl-water" min="0.2" max="1" step="0.05" value="0.75"></div>
+      <label class="check"><input type="checkbox" id="ctl-mildDeficit"> Помірний дефіцит після зав'язування (підсилює аромат)</label>
+      <div class="slider"><label>Бруньок на куш (обрізка) <output id="out-buds">22</output></label>
+        <input type="range" id="ctl-buds" min="10" max="40" step="1" value="22"></div>
+      <div class="slider"><label>Видалення листя біля грона <output id="out-leafRem">0%</output></label>
+        <input type="range" id="ctl-leafRemoval" min="0" max="0.6" step="0.05" value="0"></div>
+      <div class="slider"><label>Експозиція грона сонцю <output id="out-exp">75%</output></label>
+        <input type="range" id="ctl-canopyExposure" min="0.2" max="1" step="0.05" value="0.75"></div>
+    </div>
+
+    <div class="balance-note" id="balance-note"></div>
+  </aside>
+
+  <section class="content">
+    <!-- Статистичні картки -->
+    <div class="stats" id="stats"></div>
+
+    <!-- TAB: Сезон -->
+    <div class="tab active" id="tab-season">
+      <div class="chart-block">
+        <h3>Біомаса органів, г сухої речовини / куш</h3>
+        <canvas id="chart-organs" class="chart" data-h="260"></canvas>
+      </div>
+      <div class="chart-row">
+        <div class="chart-block">
+          <h3>LAI (індекс листової поверхні)</h3>
+          <canvas id="chart-lai" class="chart" data-h="180"></canvas>
+        </div>
+        <div class="chart-block">
+          <h3>Ґрунтовий N, кг/га · поглинання N, г/куш·добу</h3>
+          <canvas id="chart-nitrogen" class="chart" data-h="180"></canvas>
+        </div>
+      </div>
+      <div class="chart-block">
+        <h3>Фенологія BBCH · часова вісь <span class="hint">(перемотуйте повзунком дня нижче)</span></h3>
+        <div class="pheno-strip" id="pheno-strip"></div>
+        <div class="day-scrub">
+          <input type="range" id="scrub" min="0" max="213" value="150">
+          <div id="scrub-label">день 150</div>
+        </div>
+        <div class="day-detail" id="day-detail"></div>
+      </div>
+    </div>
+
+    <!-- TAB: Ягода -->
+    <div class="tab" id="tab-berry">
+      <div class="chart-block">
+        <h3>Цукор (Brix) · титрована кислотність (г/л) · pH</h3>
+        <canvas id="chart-quality" class="chart" data-h="280"></canvas>
+      </div>
+      <div class="chart-block">
+        <h3>Монотерпеноли мускату, мкг/кг ягід: вільні (аромат) і глікозидно-зв'язані (потенціал)</h3>
+        <canvas id="chart-terpenes" class="chart" data-h="260"></canvas>
+      </div>
+      <div class="chart-row">
+        <div class="chart-block">
+          <h3>Врожай, кг/куш</h3>
+          <canvas id="chart-yield" class="chart" data-h="170"></canvas>
+        </div>
+        <div class="chart-block">
+          <h3>Малат / тартрат, г на куш</h3>
+          <canvas id="chart-acids" class="chart" data-h="170"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Потоки -->
+    <div class="tab" id="tab-flows">
+      <div class="chart-block">
+        <h3>Потоки вуглецю на обраний день, г C/добу</h3>
+        <canvas id="chart-cflows" class="chart" data-h="330"></canvas>
+      </div>
+      <div class="chart-block">
+        <h3>Потоки азоту на обраний день, г N/добу</h3>
+        <canvas id="chart-nflows" class="chart" data-h="280"></canvas>
+      </div>
+      <p class="note">Товщина лінії ∝ величині потоку. «Дихання» — вуглець, повернутий в атмосферу (підтримка + ріст). Див. «Параметри» для рівня припущень.</p>
+    </div>
+
+    <!-- TAB: Чутливість -->
+    <div class="tab" id="tab-sens">
+      <div class="chart-block">
+        <h3>Вплив ±20% входів на вільні монотерпеноли при зборі, мкг/кг</h3>
+        <canvas id="chart-tornado" class="chart" data-h="300"></canvas>
+      </div>
+      <div class="chart-block">
+        <h3>Вплив ±20% входів на Brix при зборі</h3>
+        <canvas id="chart-tornado-brix" class="chart" data-h="260"></canvas>
+      </div>
+      <p class="note">Глобальний аналіз чутливості в one-at-a-time режимі (Morris/Sobol — наступний етап, E6 калібрування). Порівняння завжди з <b>базовим сценарієм</b>.</p>
+    </div>
+
+    <!-- TAB: Параметри -->
+    <div class="tab" id="tab-params">
+      <h3>Реєстр параметрів ядра (Tier 1)</h3>
+      <p class="note">Позначка <b>ASSUMPTION</b> = значення прийнято за припущенням з обґрунтуванням і підлягає калібруванню на етапі E6. Позначка <b>ОРІЄНТИР ТЗ</b> = діапазон із технічного завдання (розділ 8).</p>
+      <div id="param-table"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>VineSeason v0.1.0 — Tier 1 (балансова модель). Результати ілюстративні: не є агрономічною рекомендацією.</span>
+  <span id="perf-note"></span>
+</footer>
+
+<script src="js/model.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
