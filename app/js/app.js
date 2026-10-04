@@ -24,6 +24,12 @@
     const o = document.createElement('option'); o.value = k; o.textContent = 'Ґрунт: ' + v; selF.appendChild(o);
   }
 
+  // Синхронізувати селекти з конфігурацією за замовчуванням
+  // (інакше браузер обирає перший <option>, а не defaultConfig)
+  $('ctl-variety').value = cfg.variety;
+  $('ctl-tempScenario').value = cfg.tempScenario;
+  $('ctl-soilFertility').value = cfg.soilFertility;
+
   // ---------- Реєстр параметрів для таблиці ----------
   const PARAMS = [
     ['EPS0', '0.85 г C / моль PPFD', 'ефективність фотосинтезу в оптимумі', 'assumption'],
