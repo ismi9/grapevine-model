@@ -72,6 +72,39 @@ const VineModel = (function () {
       targetBrix: 19.0, laiMax: 2.9, berryPerCluster: 105, clustersPerShoot: 1.5,
       terpProfile: { linalool: 0.35, geraniol: 0.25, nerol: 0.13, terpineol: 0.17, citronellol: 0.10 },
     },
+    muscat_rose: {
+      name: 'Мускат рожевий (à petits grains rouges)',
+      // Мутація Муската білого: ягода 11-18×10-17 мм, грона 108-204 г; Одеса: цукор 17.9-24.2 г/100мл,
+      // кислотність 4.8-9.1 г/л, дозрівання III дек. вересня (140 днів, САТ 2900°С) [ДОЖЕРЕЛО: Держреєстр РФ/Одеса]
+      berryFW_g: 1.7, dxsActivity: 0.95, terpSynthBase: 42, phenoShift: 0.10,
+      targetBrix: 21.5, laiMax: 3.0, berryPerCluster: 115, clustersPerShoot: 1.6,
+      // Рожеві ноти (казанликська троянда): підвищені гераніол/цитронелол [ASSUMPTION: профіль за описом аромату]
+      terpProfile: { linalool: 0.38, geraniol: 0.28, nerol: 0.14, terpineol: 0.10, citronellol: 0.10 },
+    },
+    muscat_yellow: {
+      name: 'Мускат жовтий (Moscato Giallo)',
+      // Високий вміст вільних+глікозильованих монотерпеноїдів (GC-MS, FEM 2023); ягода дрібна, грони циліндричні
+      berryFW_g: 1.8, dxsActivity: 0.85, terpSynthBase: 38, phenoShift: 0.03,
+      targetBrix: 20.5, laiMax: 2.6, berryPerCluster: 90, clustersPerShoot: 1.3,
+      terpProfile: { linalool: 0.45, geraniol: 0.22, nerol: 0.13, terpineol: 0.12, citronellol: 0.08 },
+    },
+    muscat_odesa: {
+      name: 'Мускат одеський (укр. селекція)',
+      // Мускат синій ранній × Пьеррелль; ягода 1.8-2.0 г янтарна, грона 130-190 г, 1.2 грона/пагін;
+      // цукор 18.6-22.0%, кислотність 5.5-8.7 г/л, ранньосередній (130-140 днів) [ДОЖЕРЕЛО: vinograd7.ru, ІВіВ ім. Вєрова]
+      berryFW_g: 1.9, dxsActivity: 0.65, terpSynthBase: 28, phenoShift: -0.02,
+      targetBrix: 20.0, laiMax: 2.7, berryPerCluster: 95, clustersPerShoot: 1.2,
+      terpProfile: { linalool: 0.42, geraniol: 0.22, nerol: 0.14, terpineol: 0.14, citronellol: 0.08 },
+    },
+    muscat_amber: {
+      name: 'Мускат янтарний (укр. селекція)',
+      // Дуже ранній столовий; ягода 1.8-2.3 г, грона 280 г, цукор до 20-23%, легкий мускатний аромат
+      // [ДОЖЕРЕЛО: Держреєстр, дис. Криворучко] — столовий: нижча терпенсинтаза
+      berryFW_g: 2.1, dxsActivity: 0.45, terpSynthBase: 18, phenoShift: -0.08,
+      targetBrix: 20.0, laiMax: 2.5, berryPerCluster: 100, clustersPerShoot: 1.4,
+      terpProfile: { linalool: 0.40, geraniol: 0.20, nerol: 0.15, terpineol: 0.15, citronellol: 0.10 },
+    },
+
   };
 
   // Глікозилювання окремих сполук, доба⁻¹ × fEnz(T) [ASSUMPTION: VvGT14 — гераніол; верифікувати]
