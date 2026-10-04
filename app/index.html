@@ -31,6 +31,12 @@
     <h2>Параметри сезону</h2>
 
     <div class="ctl-group">
+      <label>Рівень моделі
+        <select id="ctl-tier">
+          <option value="tier2">Tier 2 — кінетика FvCB, MEP-мережа (E5)</option>
+          <option value="tier1">Tier 1 — балансова модель</option>
+        </select>
+      </label>
       <label>Сорт
         <select id="ctl-variety"></select>
       </label>
@@ -53,6 +59,14 @@
       </label>
       <div class="slider"><label>Азот N, кг/га за сезон <output id="out-n">60</output></label>
         <input type="range" id="ctl-nFertKgHa" min="0" max="150" step="5" value="60"></div>
+      <label>Форма азотного добрива
+        <select id="ctl-fertForm">
+          <option value="mixed">Змішана (50% NO₃⁻ · 25% NH₄⁺ · 25% амі́дна)</option>
+          <option value="nitrate">Нітратна (NO₃⁻)</option>
+          <option value="ammonium">Амонійна (NH₄⁺)</option>
+          <option value="urea">Сечовина (амі́дна)</option>
+        </select>
+      </label>
       <div class="slider"><label>Фосфор P (від оптимуму) <output id="out-p">1.00</output></label>
         <input type="range" id="ctl-pSupply" min="0.2" max="1.5" step="0.05" value="1"></div>
       <div class="slider"><label>Калій K <output id="out-k">1.00</output></label>
@@ -121,6 +135,10 @@
       <div class="chart-block">
         <h3>Монотерпеноли мускату, мкг/кг ягід: вільні (аромат) і глікозидно-зв'язані (потенціал)</h3>
         <canvas id="chart-terpenes" class="chart" data-h="260"></canvas>
+      </div>
+      <div class="chart-block">
+        <h3>Вільні монотерпеноли по сполуках (Tier 2: MEP-мережа) <span class="hint">ліналоол · гераніол · нерол · α-терпінеол · цитронелол · оксиди</span></h3>
+        <canvas id="chart-compounds" class="chart" data-h="240"></canvas>
       </div>
       <div class="chart-row">
         <div class="chart-block">

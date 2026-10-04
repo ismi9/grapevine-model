@@ -29,6 +29,8 @@
   $('ctl-variety').value = cfg.variety;
   $('ctl-tempScenario').value = cfg.tempScenario;
   $('ctl-soilFertility').value = cfg.soilFertility;
+  $('ctl-tier').value = cfg.tier;
+  $('ctl-fertForm').value = cfg.fertForm;
 
   // ---------- Реєстр параметрів для таблиці ----------
   const PARAMS = [
@@ -46,6 +48,16 @@
     ['Brix при зборі', '18–24 °Bx', 'правдоподібний діапазон мускатів', 'orient'],
     ['TA / pH дозрівання', '4–9 г/л / 3.0–3.6', 'кислотність і pH', 'orient'],
     ['Ягода мускату біл.', '1–2 г', 'маса ягоди дрібноягідних форм', 'orient'],
+    ['— Tier 2 —', '', '', ''],
+    ['Vcmax25 (база)', '70 мкмоль·м⁻²·с⁻¹', 'Рубіско-обмежене фотосинтез ← N листя', 'assumption'],
+    ['fV(T)', 'Ha 50 кДж/моль, дезакт. >34 °C', 'температурна крива ферментативики', 'assumption'],
+    ['NO₃⁻: Vmax/Km', '0.12 / 0.05 г N·куш⁻¹·доб⁻¹', 'Міхаеліс–Ментен поглинання нітрату', 'assumption'],
+    ['Вартість відновл. NO₃⁻', '0.60 г C / г N', 'нітратредуктаза+GS/GOGAT (енергетика)', 'assumption'],
+    ['Гідроліз сечовини', '0.30/добу × f(T)', 'уреаза', 'assumption'],
+    ['Нітрифікація', '0.055/добу × f(T)', 'NH₄⁺ → NO₃⁻', 'assumption'],
+    ['Глікозилювання сполук', '0.020–0.055/добу × f(T)', 'глікозилтрансферази (VvGT14 — гераніол)', 'assumption'],
+    ['Пороги одоряції', '25–300 мкг/л', 'OAV-зважений індекс мускатності', 'assumption'],
+    ['Розбавлення навантаженням', '(2кг/урожай)^0.25', 'шкірочка/м\'якуш: менші ягоди ароматніші', 'assumption'],
   ];
   const badge = t => t === 'assumption'
     ? '<span class="badge assumption">ASSUMPTION</span>'
@@ -58,9 +70,11 @@
   // ---------- Зчитування конфігурації з панелі ----------
   function readConfig() {
     return {
+      tier: $('ctl-tier').value,
       variety: $('ctl-variety').value,
       tempScenario: $('ctl-tempScenario').value,
       soilFertility: $('ctl-soilFertility').value,
+      fertForm: $('ctl-fertForm').value,
       dT: +$('ctl-dT').value,
       parFactor: +$('ctl-parFactor').value,
       water: +$('ctl-water').value,
@@ -102,19 +116,25 @@
     renderStats();
     renderCharts();
     renderPheno();
-    $('balance-note').textContent =
-      `Баланс C: надійшло ${Math.round(run.balance.cIn)} г · вийшло ${Math.round(run.balance.cOut)} г (дихання+опад)`;
+    const led = run.balance;
+    const closureOk = led.pass
+      ? '✓ масовий баланс зберігається (≤1e-6)'
+      : `✗ порушення: C ${led.cClosureRel.toExponential(1)} N ${led.nClosureRel.toExponential(1)}`;
+    $('balance-note').innerHTML =
+      `${closureOk}<br>C: фотосинтез ${Math.round(led.cLedger.cIn)} г · тепло ${Math.round(led.cLedger.cHeat)} г · опад ${Math.round(led.cLedger.cFallOut)} г` +
+      `<br>N: поглинено ${(led.cLedger.soilUp).toFixed(1)} кг/га · ґрунтовий баланс: поч. ${led.soilStart.toFixed(0)} → кін. ${led.soilEnd.toFixed(0)} кг/га`;
   }
 
   // ---------- Картки підсумків ----------
   function renderStats() {
     const s = run.summary;
     const cards = [
-      ['Збір урожаю', s.harvestDate, 'BBCH ' + s.bbchAtHarvest],
+      ['Збір урожаю', s.harvestDate, 'BBCH ' + s.bbchAtHarvest + ' · ' + (s.tier === 'tier2' ? 'Tier 2' : 'Tier 1')],
       ['Врожай', s.yieldTPerHa.toFixed(1) + ' т/га', (s.yieldKgPerVine * 1000).toFixed(0) + ' г/куш'],
       ['Brix', s.brix.toFixed(1) + ' °Bx', 'TA ' + s.ta.toFixed(1) + ' г/л · pH ' + s.ph.toFixed(2)],
       ['Вільні монотерпеноли', Math.round(s.terpFreeUg) + ' мкг/кг', 'зв\'язані: ' + Math.round(s.terpBoundUg)],
       ['Індекс мускатності', s.muscatIndex.toFixed(0) + '/100', 'aroma potential: ' + Math.round(s.terpTotalUg) + ' мкг/кг'],
+      ['YAN (проксі)', Math.round(s.yan) + ' мг N/л', s.linaloolGeraniolRatio ? 'ліналоол/гераніол: ' + s.linaloolGeraniolRatio.toFixed(1) : 'засвоюваний N'],
       ['Макс. LAI', s.maxLai.toFixed(1), 'GDD: ' + Math.round(s.gddSeason)],
     ];
     $('stats').innerHTML = cards.map(c =>
@@ -162,6 +182,19 @@
       { name: 'зв\'язані', color: '#2d6a4f', values: mk('terpBoundUg') },
       ...(baseRun ? [{ name: 'база: вільні', color: '#9db8a4', values: baseRun.daily.map(x => x.terpFreeUg).slice(0, run.daily.length), dashed: true }] : []),
     ]);
+    // Сполуки (Tier 2) або сумарні (Tier 1)
+    if (run.cfg.tier === 'tier2') {
+      const comps = ['linalool', 'geraniol', 'nerol', 'terpineol', 'citronellol', 'oxides'];
+      const colors = { linalool: '#c67850', geraniol: '#2d6a4f', nerol: '#8bbec1', terpineol: '#b98a2e', citronellol: '#6b5b95', oxides: '#68776d' };
+      Charts.line($('chart-compounds'), comps.map(c => ({
+        name: c, color: colors[c],
+        values: run.daily.map(x => (x.terpCompounds && x.terpCompounds[c]) ? x.terpCompounds[c].free : 0),
+      })));
+    } else {
+      Charts.line($('chart-compounds'), [
+        { name: 'вільні (сума, Tier 1)', color: '#c67850', values: run.daily.map(x => x.terpFreeUg), area: true },
+      ]);
+    }
     Charts.line($('chart-yield'), [
       { name: 'кг/куш', color: C.berry, values: mk('yieldKg'), area: true },
     ]);
@@ -250,10 +283,18 @@
     recalc();
   });
   $('btn-csv').addEventListener('click', () => {
-    const cols = ['day', 'date', 'T', 'gdd', 'bbch', 'lai', 'gpp', 'rm', 'soilN', 'uptakeN',
-      'berryFWTotal', 'brix', 'ta', 'ph', 'terpFreeUg', 'terpBoundUg', 'yieldKg'];
-    const rows = [cols.join(',')].concat(run.daily.map(x => cols.map(c =>
-      typeof x[c] === 'number' ? x[c].toFixed(3) : x[c]).join(',')));
+    let cols = ['day', 'date', 'T', 'gdd', 'bbch', 'lai', 'gpp', 'rm', 'soilN', 'soilNo3', 'soilNh4', 'soilUrea', 'uptakeN',
+      'berryFWTotal', 'brix', 'ta', 'ph', 'terpFreeUg', 'terpBoundUg', 'muscatIndex', 'yieldKg'];
+    if (run.cfg.tier === 'tier2') {
+      for (const c of ['linalool', 'geraniol', 'nerol', 'terpineol', 'citronellol', 'oxides']) {
+        cols.push('free_' + c, 'bound_' + c);
+      }
+    }
+    const rows = [cols.join(',')].concat(run.daily.map(x => cols.map(c => {
+      if (c.startsWith('free_')) return ((x.terpCompounds || {})[c.slice(5)] || {}).free !== undefined ? x.terpCompounds[c.slice(5)].free.toFixed(3) : 0;
+      if (c.startsWith('bound_')) return ((x.terpCompounds || {})[c.slice(6)] || {}).bound !== undefined ? x.terpCompounds[c.slice(6)].bound.toFixed(3) : 0;
+      return typeof x[c] === 'number' ? x[c].toFixed(3) : x[c];
+    }).join(',')));
     download('vineseason_' + cfg.variety + '.csv', rows.join('\n'), 'text/csv');
   });
   $('btn-save').addEventListener('click', () => {

@@ -124,3 +124,80 @@ variety_targets:   # орієнтири правдоподібності (роз
   ph_harvest: {range: [3.0, 3.6], status: TZ §8}
   berry_mass_muscat_blanc: {range: [1, 2], unit: "g", status: TZ §8}
   lai_full: {range: [1.5, 3.5], status: TZ §8}
+
+# ============================================================
+# TIER 2 (етап E5) — кінетика, форми N, MEP-мережа терпеноїдів
+# ============================================================
+tier2_photosynthesis:
+  vcmax25_base:
+    value: 70
+    unit: "µmol CO₂·m⁻²·s⁻¹ (при N листя = оптимум)"
+    range: [55, 90]
+    status: ASSUMPTION
+    rationale: "Vcmax ← N_Rubisco; зв'язок ^0.7. Літературні діапазони для Vitis — верифікувати (E1)."
+  fV_temp:
+    value: "Ha 50 kJ/mol, дезактивація >34 °C (sigmoid, 2° ширина)"
+    status: ASSUMPTION
+    rationale: "D-006: точні константи Bernacchi/Kattge-Knorr визнані неперевіреними; прозора емпірична крива."
+  ci_ratio:
+    value: 0.70
+    unit: "частка ci/ca"
+    range: [0.6, 0.8]
+    status: ASSUMPTION
+    note: "× f(вода) — продихова відповідь (спрощений Medlyn)"
+  alpha_electron:
+    value: 0.30
+    unit: "mol e⁻ / mol photon (ефективність)"
+    status: ASSUMPTION
+
+tier2_nitrogen:
+  vmax_no3: {value: 0.12, unit: "g N/vine/day @20°C", status: ASSUMPTION}
+  km_no3: {value: 0.05, unit: "g N/vine", status: ASSUMPTION}
+  vmax_nh4: {value: 0.08, unit: "g N/vine/day @20°C", status: ASSUMPTION}
+  km_nh4: {value: 0.02, unit: "g N/vine", status: ASSUMPTION, note: "вища спорідненість NH₄⁺"}
+  nitrate_reduct_cost:
+    value: 0.60
+    unit: "g C / g N"
+    status: ASSUMPTION
+    rationale: "~3.4 проти 1.9 г глюкози/г N для нітратного проти амонійного шляху; верифікувати."
+  nh4_assim_cost: {value: 0.05, unit: "g C / g N", status: ASSUMPTION}
+  nitrate_store_cap: {value: 1.2, unit: "g N/vine", status: ASSUMPTION}
+  k_nitrate_reduct: {value: 0.18, unit: "day⁻¹ @20°C", status: ASSUMPTION}
+  urea_hydrolysis: {value: 0.30, unit: "day⁻¹ × f(T,вода)", status: ASSUMPTION, note: "уреаза"}
+  nitrification: {value: 0.055, unit: "day⁻¹ × f(T,вода)", status: ASSUMPTION}
+  leach_no3: {value: 0.022, unit: "day⁻¹ (вологе ≥0.7 → ×1.2)", status: ASSUMPTION}
+  leach_nh4: {value: 0.004, unit: "day⁻¹", status: ASSUMPTION, note: "сорбція — менше вимивається"}
+  denitrification: {value: 0.006, unit: "day⁻¹ × f(T) × f(вода)", status: ASSUMPTION}
+  luxury_fraction: {value: 0.30, unit: "частка попиту (надлишок → листовий N)", status: ASSUMPTION}
+
+tier2_terpenes:
+  profile_muscat_blanc:
+    value: {linalool: 0.50, geraniol: 0.20, nerol: 0.12, terpineol: 0.10, citronellol: 0.08}
+    status: ASSUMPTION
+    rationale: "Сортові профілі монотерпенсинтаз; верифікувати за E1 (ліналоол-домінантність мускату білого — очікувано)."
+  gly_compound:
+    value: {linalool: 0.035, geraniol: 0.055, nerol: 0.040, terpineol: 0.030, citronellol: 0.045, oxides: 0.020}
+    unit: "day⁻¹ × f(ензиматика T)"
+    status: ASSUMPTION
+    note: "VvGT14 асоційований з гераніолом (найшвидший) — верифікувати назву/функцію."
+  linalool_oxidation:
+    value: 0.006
+    unit: "day⁻¹ (+0.004/°C вище 30 °C)"
+    status: ASSUMPTION
+  odor_threshold:
+    value: {linalool: 25, geraniol: 30, nerol: 45, terpineol: 300, citronellol: 100, oxides: 200}
+    unit: "µg/L у вині"
+    status: ASSUMPTION
+    rationale: "Порядок порогів одоряції; точні значення — Francis et al. / Rapp — верифікувати (E1)."
+  muscat_index:
+    value: "100×OAV_Σ/(OAV_Σ+4)"
+    status: ASSUMPTION
+  load_dilution_exp:
+    value: 0.25
+    unit: "показник ступеня у (2кг/урожай)^x"
+    status: ASSUMPTION
+    rationale: "шкірочка/м'якуш: менші ягоди — вища концентрація терпенів [напрямок §3.5]"
+
+berry_water_turgor:
+  phaseI_water_factor: {value: "0.30+0.70×f(вода)", status: ASSUMPTION, note: "модель Локгарта, спрощено"}
+  phaseIII_water_factor: {value: "0.55+0.45×f(вода)", status: ASSUMPTION}
