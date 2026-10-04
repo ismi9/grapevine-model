@@ -1,0 +1,29 @@
+{
+  "global": {
+    "taTarget": 7.0,
+    "phTarget": 3.2,
+    "ensembleN": 200,
+    "_comment": "TA ціль 7.0 г/л (середина ТЗ §8 і польових даних Одещини 5.5-8.7); тартрат дозрілої ягоди 4-7 г/л (Kliewer 1971); ансамбль 200 сценаріїв",
+    "tartrateL": 7.0
+  },
+  "terpFreeTarget": {
+    "muscat_blanc": 800,
+    "muscat_alexandria": 250,
+    "muscat_ottonel": 180,
+    "muscat_hamburg": 150,
+    "muscat_rose": 500,
+    "muscat_yellow": 450,
+    "muscat_odesa": 250,
+    "muscat_amber": 90
+  },
+  "terpFreeSources": {
+    "muscat_blanc": "800 мкг/кг — серединa діапазону ТЗ §8 (400–1600, Frontignan-class; Wilson et al. 1984/1986)",
+    "muscat_alexandria": "250 — помірний мускат, нижчий за blanc (Williams 1980s: ~0.2–0.5 mg/kg вільних)",
+    "muscat_ottonel": "180 — легкий мускат (літ-ра: 100–300 мкг/кг) [ASSUMPTION: інтерполяція]",
+    "muscat_hamburg": "150 — легкий мускат, столово-технічний [ASSUMPTION: інтерполяція]",
+    "muscat_rose": "500 — мутація blanc, сильна ароматика «казанлыкська троянда» (агроописи, Одеса)",
+    "muscat_yellow": "450 — високі вільні+зв'язані монотерпеноїди (FEM 2023, GC-MS/MS Moscato Giallo)",
+    "muscat_odesa": "250 — «сильний мускатний аромат» (ІВіВ ім. В.Є. Вєрова; дегустації 8+ бал) [ASSUMPTION]",
+    "muscat_amber": "90 — «легкий мускатний аромат», столовий (Держреєстр) [ASSUMPTION]"
+  }
+}

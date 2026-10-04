@@ -41,7 +41,7 @@ const VineModel = (function () {
   const NITRATE_STORE_CAP = 1.2;     // г N запасу нітрату [ASSUMPTION]
   const K_NITRATE_REDUCT = 0.18;     // доба⁻¹ при 20 °C [ASSUMPTION]
   const N_CONC = { leaf: 0.024, shoot: 0.010, root: 0.013, wood: 0.004, berry: 0.006 };
-  const MALATE_L = 12, TARTRATE_L = 10, K_MAL = 0.085;
+  const MALATE_L = 12, TARTRATE_L = 7.0, K_MAL = 0.08; // TARTRATE_L за Kliewer 1971 (4-7 г/л), K_MAL → TA(blanc)=7 г/л [CALIBRATED E6.2: validation/calibrate.js]
   const GLY_RATE = 0.045;        // базова частка глікозилювання (Tier 1) [ASSUMPTION]
   const LOSS_BASE = 0.008;
 
@@ -49,26 +49,26 @@ const VineModel = (function () {
   const VARIETIES = {
     muscat_blanc: {
       name: 'Мускат білий (дрібноягідний)',
-      berryFW_g: 1.3, dxsActivity: 1.00, terpSynthBase: 45, phenoShift: 0.00,
+      berryFW_g: 1.3, dxsActivity: 1.00, terpSynthBase: 97, phenoShift: 0.00,
       targetBrix: 20.5, laiMax: 3.0, berryPerCluster: 110, clustersPerShoot: 1.7,
       // Профіль монотерпенсинтаз (частки MEP→сполука) [ASSUMPTION: калібрувальний, верифікувати E1]
       terpProfile: { linalool: 0.50, geraniol: 0.20, nerol: 0.12, terpineol: 0.10, citronellol: 0.08 },
     },
     muscat_alexandria: {
       name: 'Мускат Александрійський',
-      berryFW_g: 2.4, dxsActivity: 0.72, terpSynthBase: 30, phenoShift: 0.06,
+      berryFW_g: 2.4, dxsActivity: 0.72, terpSynthBase: 51.6, phenoShift: 0.06,
       targetBrix: 19.5, laiMax: 2.7, berryPerCluster: 95, clustersPerShoot: 1.5,
       terpProfile: { linalool: 0.30, geraniol: 0.35, nerol: 0.15, terpineol: 0.12, citronellol: 0.08 },
     },
     muscat_ottonel: {
       name: 'Мускат Оттонель',
-      berryFW_g: 1.9, dxsActivity: 0.55, terpSynthBase: 23, phenoShift: -0.03,
+      berryFW_g: 1.9, dxsActivity: 0.55, terpSynthBase: 39.1, phenoShift: -0.03,
       targetBrix: 20.0, laiMax: 2.8, berryPerCluster: 100, clustersPerShoot: 1.4,
       terpProfile: { linalool: 0.45, geraniol: 0.18, nerol: 0.14, terpineol: 0.15, citronellol: 0.08 },
     },
     muscat_hamburg: {
       name: 'Мускат гамбурзький (червоний)',
-      berryFW_g: 2.2, dxsActivity: 0.62, terpSynthBase: 27, phenoShift: 0.04,
+      berryFW_g: 2.2, dxsActivity: 0.62, terpSynthBase: 33.2, phenoShift: 0.04,
       targetBrix: 19.0, laiMax: 2.9, berryPerCluster: 105, clustersPerShoot: 1.5,
       terpProfile: { linalool: 0.35, geraniol: 0.25, nerol: 0.13, terpineol: 0.17, citronellol: 0.10 },
     },
@@ -76,7 +76,7 @@ const VineModel = (function () {
       name: 'Мускат рожевий (à petits grains rouges)',
       // Мутація Муската білого: ягода 11-18×10-17 мм, грона 108-204 г; Одеса: цукор 17.9-24.2 г/100мл,
       // кислотність 4.8-9.1 г/л, дозрівання III дек. вересня (140 днів, САТ 2900°С) [ДОЖЕРЕЛО: Держреєстр РФ/Одеса]
-      berryFW_g: 1.7, dxsActivity: 0.95, terpSynthBase: 42, phenoShift: 0.10,
+      berryFW_g: 1.7, dxsActivity: 0.95, terpSynthBase: 79.2, phenoShift: 0.10,
       targetBrix: 21.5, laiMax: 3.0, berryPerCluster: 115, clustersPerShoot: 1.6,
       // Рожеві ноти (казанликська троянда): підвищені гераніол/цитронелол [ASSUMPTION: профіль за описом аромату]
       terpProfile: { linalool: 0.38, geraniol: 0.28, nerol: 0.14, terpineol: 0.10, citronellol: 0.10 },
@@ -84,7 +84,7 @@ const VineModel = (function () {
     muscat_yellow: {
       name: 'Мускат жовтий (Moscato Giallo)',
       // Високий вміст вільних+глікозильованих монотерпеноїдів (GC-MS, FEM 2023); ягода дрібна, грони циліндричні
-      berryFW_g: 1.8, dxsActivity: 0.85, terpSynthBase: 38, phenoShift: 0.03,
+      berryFW_g: 1.8, dxsActivity: 0.85, terpSynthBase: 67.6, phenoShift: 0.03,
       targetBrix: 20.5, laiMax: 2.6, berryPerCluster: 90, clustersPerShoot: 1.3,
       terpProfile: { linalool: 0.45, geraniol: 0.22, nerol: 0.13, terpineol: 0.12, citronellol: 0.08 },
     },
@@ -92,7 +92,7 @@ const VineModel = (function () {
       name: 'Мускат одеський (укр. селекція)',
       // Мускат синій ранній × Пьеррелль; ягода 1.8-2.0 г янтарна, грона 130-190 г, 1.2 грона/пагін;
       // цукор 18.6-22.0%, кислотність 5.5-8.7 г/л, ранньосередній (130-140 днів) [ДОЖЕРЕЛО: vinograd7.ru, ІВіВ ім. Вєрова]
-      berryFW_g: 1.9, dxsActivity: 0.65, terpSynthBase: 28, phenoShift: -0.02,
+      berryFW_g: 1.9, dxsActivity: 0.65, terpSynthBase: 45.1, phenoShift: -0.02,
       targetBrix: 20.0, laiMax: 2.7, berryPerCluster: 95, clustersPerShoot: 1.2,
       terpProfile: { linalool: 0.42, geraniol: 0.22, nerol: 0.14, terpineol: 0.14, citronellol: 0.08 },
     },
@@ -100,7 +100,7 @@ const VineModel = (function () {
       name: 'Мускат янтарний (укр. селекція)',
       // Дуже ранній столовий; ягода 1.8-2.3 г, грона 280 г, цукор до 20-23%, легкий мускатний аромат
       // [ДОЖЕРЕЛО: Держреєстр, дис. Криворучко] — столовий: нижча терпенсинтаза
-      berryFW_g: 2.1, dxsActivity: 0.45, terpSynthBase: 18, phenoShift: -0.08,
+      berryFW_g: 2.1, dxsActivity: 0.45, terpSynthBase: 25.1, phenoShift: -0.08,
       targetBrix: 20.0, laiMax: 2.5, berryPerCluster: 100, clustersPerShoot: 1.4,
       terpProfile: { linalool: 0.40, geraniol: 0.20, nerol: 0.15, terpineol: 0.15, citronellol: 0.10 },
     },

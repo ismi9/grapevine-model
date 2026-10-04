@@ -1,0 +1,16 @@
+{
+  "consts": {
+    "TARTRATE_L": 7,
+    "K_MAL": 0.08
+  },
+  "terpSynth": {
+    "muscat_blanc": 97,
+    "muscat_alexandria": 51.6,
+    "muscat_ottonel": 39.1,
+    "muscat_hamburg": 33.2,
+    "muscat_rose": 79.2,
+    "muscat_yellow": 67.6,
+    "muscat_odesa": 45.1,
+    "muscat_amber": 25.1
+  }
+}
