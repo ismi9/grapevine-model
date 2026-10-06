@@ -13,3 +13,5 @@ jobs:
           node-version: 20
       - name: Масовий баланс C/N/ґрунту + напрямки ефектів (28 тестів)
         run: node validation/mass_balance.js
+      - name: QA релізу G7 (24 тести, включно з G3/G5)
+        run: node validation/qa_release.js
